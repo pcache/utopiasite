@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+        <!--mybatis配置 http://mybatis.github.io/mybatis-3/zh/configuration.html-->
+        <settings>
+                <setting name="lazyLoadingEnabled" value="false" />
+        </settings>
+        <!--
+        <mappers>
+                <mapper resource="org/mybatis/example/BlogMapper.xml"/>
+        </mappers>
+        -->
+        <!--插件
+        <plugins>
+                <plugin interceptor="">
+                        <property name="" value=""/>
+                </plugin>
+        </plugins>
+        -->
+</configuration>

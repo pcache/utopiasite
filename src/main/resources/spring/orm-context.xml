@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+
+    <!--spring DriverManagerDataSource和SingleConnectionDataSource都没有提供连接池
+    Spring在第三方依赖包中包含了两个数据源的实现类包，其一是Apache的DBCP，其二是 C3P0
+    -->
+    <bean id="utopiaDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!-- 同一时间可以从池分配的最多连接数量。设置为0时表示无限制。 -->
+        <property name="maxActive" value="${jdbc.maxActive}" />
+        <!-- 池启动时创建的连接数量 -->
+        <property name="initialSize" value="${jdbc.initialSize}" />
+        <!-- 等待超时以毫秒为单位，在抛出异常之前，池等待连接被回收的最长时间（当没有可用连接时）。设置为-1表示无限等待。  -->
+        <property name="maxWait" value="${jdbc.maxWait}"/>
+        <!-- 池里不会被释放的最多空闲连接数量。设置为0时表示无限制。 -->
+        <property name="maxIdle" value="${jdbc.maxIdle}"/>
+        <!-- 在不新建连接的条件下，池中保持空闲的最少连接数。 -->
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+        <!-- 设置自动回收超时连接 -->
+        <property name="removeAbandoned" value="${jdbc.removeAbandoned}" />
+        <!-- 自动回收超时时间(以秒数为单位) getNumIdle() < 2) and (getNumActive() > getMaxActive() - 3)时被触发.-->
+        <property name="removeAbandonedTimeout" value="${jdbc.removeAbandonedTimeout}"/>
+        <!-- 设置在自动回收超时连接的时候打印连接的超时错误  -->
+        <property name="logAbandoned" value="${jdbc.logAbandoned}"/>
+    </bean>
+
+    <!--,SqlSessionFactoryBean 是用于创建 SqlSessionFactory
+     如果你想连接两个数据库，就需要创建两个 SqlSessionFactory 实例，每个数据库对应一个。而如果是三个数据库，就需要三个实例，依此类推
+     -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="utopiaDataSource" />
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />
+    </bean>
+
+    <!--自动注入Mapper到Spring容器中，自动加载sqlMapper的XML文件。-->
+    <!--Mapper与sqlMap的xml文件要存一起，否则要在sqlSessionFactory里扫描加载-->
+    <!--或者使用MapperScannerPostProcessor-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.nuoyu.utopia.utopiasso.dao.persistence" />
+    </bean>
+
+    <!--配置事务信息  待验证-->
+    <bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="utopiaDataSource"></property>
+    </bean>
+
+    <tx:advice id="utopiaTxAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="delete*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception" no-rollback-for="java.lang.RuntimeException"/>
+            <tx:method name="insert*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.RuntimeException" />
+            <tx:method name="update*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception" />
+            <tx:method name="get*" propagation="SUPPORTS"/>
+            <tx:method name="tx*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="pc" expression="execution(* com.nuoyu.utopia.utopiasso.service..impl.*ServiceImpl.*(..))" />
+        <aop:advisor pointcut-ref="pc" advice-ref="utopiaTxAdvice" />
+    </aop:config>
+</beans>

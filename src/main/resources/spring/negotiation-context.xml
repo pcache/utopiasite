@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <!--配置XStream-->
+    <bean id="xStreamMarshaller" class="org.springframework.oxm.xstream.XStreamMarshaller">
+        <property name="supportedClasses">
+            <list>
+                <!--common XML 映射  JavaBean 注册  -->
+                <value>com.nuoyu.utopia.utopiasso.web.dto.ExampleDto</value>
+                <value>com.nuoyu.utopia.utopiasso.component.exception.UtopiaExceptionMessage</value>
+                <value>com.nuoyu.utopia.utopiasso.web.dto.ResponseVo</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--配置velocity模板路径-->
+    <bean id="velocityConfigurer" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <property name="resourceLoaderPath" value="/WEB-INF/velocity/"/>
+        <property name= "velocityProperties">
+            <props>
+                <prop key="input.encoding">utf-8</prop>
+                <prop key="output.encoding">utf-8</prop>
+            </props>
+        </property>
+    </bean>
+    <!--内容协商 配置视图解析器 复合解析器 -->
+    <!-- 视图解析器（ViewResolver） -->
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver" >
+        <property name="order" value="1" />
+        <!-- 设置为true以忽略对Accept Header的支持-->
+        <property name="ignoreAcceptHeader" value="true"/>
+        <!-- 用于关闭 /userinfo/123.json 的支持 默认是true -->
+        <property name="favorPathExtension" value="true"/>
+        <!-- 用于开启 /userinfo/123?format=json 的支持 -->
+        <property name="favorParameter" value="true"/>
+        <property name="parameterName" value="format"/>
+        <!-- 在没有扩展名时即: "/user/1" 时的默认展现形式 -->
+        <property name="defaultContentType" value="text/html"/>
+        <!-- 扩展名至mimeType的映射,即 /user.json => application/json -->
+        <property name="mediaTypes">
+            <map>
+                <entry key="html" value="text/html" />
+                <entry key="json" value="application/json" />
+                <entry key="xml" value="application/xml" />
+            </map>
+        </property>
+        <property name="viewResolvers">
+            <list>
+                <bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+                <!-- 可加入其他视图技术如 volacity jstl等 -->
+                <bean id="viewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+                    <property name="order" value="2" />
+                    <property name="cache" value="true"/>
+                    <property name="prefix" value="/"/>
+                    <property name="suffix" value=".vm"/>
+                    <!--设置编码，要不然在引用模板的时候页面很容易就出现乱码的情况-->
+                    <property name="contentType"><value>text/html;charset=UTF-8</value></property>
+                </bean>
+            </list>
+        </property>
+        <!-- view 接口 下的视图解析对象 -->
+        <property name="defaultViews">
+            <list>
+                <!-- 输出为JSON数据-->
+                <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView" ></bean>
+                <!-- 输出为xml数据-->
+                <bean name="jaxb2MarshallingView" class="org.springframework.web.servlet.view.xml.MarshallingView">
+                    <property name="marshaller" ref="xStreamMarshaller"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>

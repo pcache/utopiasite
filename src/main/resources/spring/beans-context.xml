@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <!--utopia常量-->
+    <bean class="com.nuoyu.utopia.utopiasso.common.context.UtopiaConstants">
+        <property name="utopiaRequestUid" value="${utopiaRequestUid}" />
+    </bean>
+
+    <!--配置拦截器，处理权限等 拦截controller-->
+    <bean class="com.nuoyu.utopia.utopiasso.component.wall.LogObstacle"/>
+    <!--定义全局异常处理机制-->
+    <bean class="com.nuoyu.utopia.utopiasso.component.exception.resolver.UtopiaExceptionResolver"/>
+
+</beans>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+    <!-- Root Context: defines shared resources visible to all other web components -->
+    <!-- 导入属性配置文件   -->
+    <context:property-placeholder location="classpath:config/application.properties" ignore-unresolvable="true"/>
+    <!-- 导入mybatis相关配置-->
+    <import resource="orm-context.xml"/>
+    <!---导入bean配置-->
+    <import resource="beans-context.xml"/>
+    <!--
+    缓存等(工厂) 公共组建 安全组件 资源权限 Shiro  用户表有类型  shiro中 策略根据不同应用的实现来控制权限 如网站 后台  不同的实现类
+
+    -->
+
+</beans>

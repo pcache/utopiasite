@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration scan="true" scanPeriod="5 minutes">
+    <!--每个logger都关联到logger上下文，默认上下文名称为“default”。但可以使用<contextName>设置成其他名字，
+    用于区分不同应用程序的记录。一旦设置，不能修改。-->
+    <contextName>utopiasso</contextName>
+    <!--用以区分每个request-->
+    <property name="utopiaUid" value="utopiaUid" />
+    <property name="logHome" value="${catalina.base}" />
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%thread] %X{utopiaUid} %-5level %logger{32} %L - %msg%n
+            </pattern>
+        </layout>
+    </appender>
+
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logHome}/logs/utopia/utopiasso/utopiasso-log.log</File>
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>
+                {logHome}/logs/utopia/utopiasso/utopiasso-log.%d{yyyy-MM-dd}-%i.log
+            </FileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>30MB</maxFileSize>
+        </triggeringPolicy>
+        <layout>
+            <Pattern>
+                %-26(%d{HH:mm:ss.SSS} [%thread]) %X{utopiaUid} %-5level %logger{32} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <logger name="org.springframework.jdbc" level="INFO" />
+    <logger name="org.mybatis" level="debug" />
+    <logger name="java.sql" level="debug" />
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>
